@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Stock.Common"
+                   namespace="Stock.Account">
+ 
+  <class name="EntrustRecord" table="T_ENTRUST_RECORD">
+    <id name="Id">
+      <generator class="identity" />
+    </id>
+    <property name="StrategyId" column="STRATEGY_ID" type="int"/>
+    <property name="StockCode" column="STOCK_CODE" type="String"/>
+    <property name="StockName" column="STOCK_NAME" type="String"/>
+    <property name="OperType" column="OPEN_TYPE"/>
+    <property name="Amount" column="AMOUNT" type="int"/>
+    <property name="Price" column="PRICE" type="float"/>
+    <property name="TransactAmount" column="TRANS_AMOUNT" type="int"/>
+    <property name="TransactPrice" column="TRANS_PRICE" type="float"/>
+    <property name="No" column="NO" type="int"/>
+    <property name="Date" column="DATE" type="DateTime"/>
+  </class>
+ 
+</hibernate-mapping>

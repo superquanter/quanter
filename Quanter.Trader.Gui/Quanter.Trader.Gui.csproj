@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C37DE5A0-3069-4ECA-8560-7FF207A93CAD}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Quanter.Trader.Gui</RootNamespace>
+    <AssemblyName>Quanter.Trader.Gui</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Akka, Version=1.0.5.14, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.1.0.5\lib\net45\Akka.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Akka.Logger.NLog, Version=1.0.5.14, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Logger.NLog.1.0.5\lib\net45\Akka.Logger.NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Akka.Logger.slf4net, Version=1.0.5.14, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Logger.slf4net.1.0.5\lib\net45\Akka.Logger.slf4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Akka.Remote, Version=1.0.5.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Remote.1.0.5\lib\net45\Akka.Remote.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers, Version=2.4.1.521, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers.Serialization, Version=2.4.1.521, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Helios, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Helios.1.4.1\lib\net45\Helios.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=3.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.3.0.0.0\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="slf4net, Version=0.1.32.1, Culture=neutral, PublicKeyToken=592edb3b6b36b5ba, processorArchitecture=MSIL">
+      <HintPath>..\packages\slf4net.0.1.32.1\lib\net35\slf4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Xilium.CefGlue, Version=3.2272.2035.0, Culture=neutral, PublicKeyToken=6235298024de30d5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.CefGlue.Core.3.2272.2035\lib\Xilium.CefGlue.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xilium.CefGlue.WindowsForms, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6235298024de30d5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.CefGlue.WindowsForm.3.2272.2035\lib\Xilium.CefGlue.WindowsForms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="protos\google\protobuf\csharp_options.proto" />
+    <None Include="protos\google\protobuf\descriptor.proto" />
+    <None Include="protos\tutorial\addressbook.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DemoStrategy\DemoStrategy.csproj">
+      <Project>{9a3793db-03de-4c99-9525-c7c7bee9cb93}</Project>
+      <Name>DemoStrategy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.BusinessEntity\Quanter.BusinessEntity.csproj">
+      <Project>{34db14a6-e4ed-4c4a-8ca6-939201a572be}</Project>
+      <Name>Quanter.BusinessEntity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Common\Quanter.Common.csproj">
+      <Project>{a3fa3c71-a7b0-4bb6-bd32-0aee20493593}</Project>
+      <Name>Quanter.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Market.Sina\Quanter.Market.Sina.csproj">
+      <Project>{ee7d7c04-1126-4c3f-8e24-a7a6008ed8a1}</Project>
+      <Name>Quanter.Market.Sina</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Persistence\Quanter.Persistence.Server.csproj">
+      <Project>{351aaa08-f483-403c-b4a4-a5725381c5e4}</Project>
+      <Name>Quanter.Persistence.Server</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Trader.MarketServer\Quanter.MarketServer.csproj">
+      <Project>{6d5c9c0a-3c0f-47f3-9bff-2621cb1c5f10}</Project>
+      <Name>Quanter.MarketServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Trader.Messages\Quanter.Trader.Messages.csproj">
+      <Project>{dde08214-ec3a-4dd7-8cee-49973e17ae8f}</Project>
+      <Name>Quanter.Trader.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Trader.StrategyServer\Quanter.StrategyServer.csproj">
+      <Project>{f0e12b5e-7012-4345-b4a4-be4cedce5e91}</Project>
+      <Name>Quanter.StrategyServer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CHANGES.txt" />
+    <Content Include="licenses\license.txt" />
+    <Content Include="licenses\protoc-license.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Unofficial.Cef.3.2272.2035\build\Unofficial.Cef.targets" Condition="Exists('..\packages\Unofficial.Cef.3.2272.2035\build\Unofficial.Cef.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>此项目引用这台计算机上缺少的 NuGet 程序包。使用 NuGet 程序包还原可下载这些程序包。有关详细信息，请参阅 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Unofficial.Cef.3.2272.2035\build\Unofficial.Cef.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Unofficial.Cef.3.2272.2035\build\Unofficial.Cef.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Stock.BusinessEntity"
+                   namespace="Stock.BusinessEntity">
+ 
+  <class name="EStrategy" table="T_ESTRATEGY">
+    <id name="Id" column="ID">
+      <generator class="identity" />
+    </id>
+     
+    <property name="Name" column="NAME" type="String"/>
+    <property name="Desc" column="DESC" type="String"/>
+    <property name="Type" column="TYPE" type="String"/>
+    <property name="Enabled" column="ENABLED" type="Boolean"/>
+    <property name="Date" column="DATE" type="DateTime"/>
+  </class>
+ 
+</hibernate-mapping>

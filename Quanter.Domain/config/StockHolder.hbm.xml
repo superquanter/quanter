@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Stock.Common"
+                   namespace="Stock.Account">
+ 
+  <class name="StockHolderInfo" table="T_STOCK_HOLDER">
+    <id name="Id">
+      <generator class="identity" />
+    </id>
+    <property name="StrategyId" column="STRATEGY_ID" type="int"/>
+    <property name="StockCode" column="STOCK_CODE" type="String"/>
+    <property name="StockName" column="STOCK_NAME" type="String"/>
+    <property name="MarketValue" column="MARKET_VALUE" type="float"/>
+    <property name="CostPrice" column="COST_PRICE" type="float"/>
+    <property name="CurrentAmount" column="CURRENT_AMOUNT" type="int"/>
+    <property name="EnableAmount" column="ENABLE_AMOUNT" type="int"/>
+    <property name="IncomeAmount" column="INCOME_AMOUNT" type="int"/>
+    <property name="LastPrice" column="LAST_PRICE" type="float"/>
+    <property name="StockAccount" column="STOCK_ACCOUNT" type="String"/>
+    <property name="ExchangeName" column="EXCHANGE_NAME" type="String"/>
+    <property name="KeepCostPrice" column="KEEP_COST_PRICE" type="float"/>
+    <property name="Date" column="DATE" type="DateTime"/>
+  </class>
+ 
+</hibernate-mapping>

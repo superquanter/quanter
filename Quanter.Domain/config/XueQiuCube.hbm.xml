@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Stock.Strategy.XueQiu"
+                   namespace="Stock.Strategy.XueQiu">
+ 
+  <class name="XueQiuCube" table="T_XUEQIU_CUBE">
+    <id name="Id">
+      <generator class="identity" />
+    </id>
+    <property name="Cube" column="CUBE_SYMBOL" type="String"/>
+    <property name="StrategyId" column="STRATEGY_ID" type="int"/>
+
+    <property name="PreAdjustmentId" column="PRE_ADJUSTMENT_XID" type="long"/>
+  </class>
+ 
+</hibernate-mapping>
