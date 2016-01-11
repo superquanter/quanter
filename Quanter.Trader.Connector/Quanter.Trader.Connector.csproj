@@ -64,8 +64,6 @@
     <Compile Include="ITrader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structs.cs" />
-    <Compile Include="ThsStockTrader.cs" />
-    <Compile Include="ThsTraderActor.cs" />
     <Compile Include="TradeManagerActor.cs" />
     <Compile Include="TraderResult.cs" />
     <Compile Include="Win32API.cs" />

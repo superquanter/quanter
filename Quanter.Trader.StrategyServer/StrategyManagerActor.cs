@@ -24,7 +24,7 @@ namespace Quanter.Strategy
     /// 2、证券市场取消关注的证券
     /// 3、
     /// </summary>
-    public class StrategyManagerActor : TypedActor, IHandle<StrategyRequest>, IHandle<StrategiesRequest>
+    public class StrategyManagerActor : TypedActor, IHandle<StrategyRequest>// , IHandle<StrategiesRequest>
     {
         private readonly ILoggingAdapter _log = Logging.GetLogger(Context);
 
@@ -45,74 +45,22 @@ namespace Quanter.Strategy
                     _log.Warning("不支持的Request Type {0}", message.Type);
                     break;
             }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
-        public void Handle(StrategiesRequest message)
-        {
-            StrategiesResponse sr = new StrategiesResponse();
-
-            sr.Add(new EStrategy
-            {
-                Type="",
-                Name = "雪球跟踪策略",
-                Desc = "跟踪雪球， 快速下单"
-            });
-
-            sr.Add(new EStrategy
-            {
-                Type = "",
-                Name = "分级B强势轮动策略",
-                Desc = "发现强势分级基金，快速下单"
-            });
-
-            Sender.Tell(sr);
-
-            _log.Info("获取到所有的策略列表");
-        }
+        } 
 
         private void _createStrategyActor(EStrategy sd)
         {
+            _log.Info("创建策略 {0}", sd.Id);
             if (!strategyActors.ContainsKey(sd.Id))
             {
-                // String[] ary = sd.Type.Split(new string[] { "," }, StringSplitOptions.None);
                 Type t = Type.GetType(sd.Type);
                 var strategyActor = Context.ActorOf(Props.Create(t, sd), sd.Id.ToString());
+                strategyActor.Tell(new StrategyRequest() { Type = StrategyRequestType.INIT });
                 strategyActors.Add(sd.Id, strategyActor);
             }else
             {
                 _log.Warning("重复注册策略，策略号 {0}", sd.Id);
             }
         }
-
-        //private void _registerStarategy(IStrategy strategy)
-        //{
-        //    if(strategyActors.Keys.Contains<int>(strategy.Id))
-        //    {
-        //        Sender.Tell(new ErrorResponse() { });        // Warning： the strategy is existed
-        //        return;
-        //    }
-        //    IActorRef strategyActor = null;
-
-        //    strategyActors.Add(strategy.Id, strategyActor);
-        //}
-
-        //private void _unregisterStrategy(IStrategy strategy)
-        //{
-        //    if (!strategyActors.Keys.Contains<int>(strategy.Id))
-        //    {
-        //        Sender.Tell(new ErrorResponse() { });        // Warning： the strategy is not existed
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        strategyActors.Remove(strategy.Id);
-        //    }
-        //    strategyActors.Remove(strategy.Id);
-        //}
 
     }
 }

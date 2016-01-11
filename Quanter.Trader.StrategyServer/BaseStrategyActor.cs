@@ -15,7 +15,7 @@ namespace Quanter.Strategy
     {
         private readonly ILoggingAdapter _log = Logging.GetLogger(Context);
 
-        private ActorSelection persistenceActor = null;
+        protected ActorSelection persistenceActor = null;
         private ActorSelection tradeActor = null;
         protected List<Securities> secs = new List<Securities>();
         private Dictionary<String, Securities> secDict = new Dictionary<string, Securities>();
@@ -25,6 +25,11 @@ namespace Quanter.Strategy
         protected void AddSecurities(Securities sec)
         {
             secDict.Add(sec.Symbol, sec);
+
+            String path1 = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER);
+            var marketActor = Context.ActorSelection(path1);
+            // 增加一个关注的股票
+            marketActor.Tell("");
 
             String path = String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER, sec.Symbol);
             var secActor = Context.ActorSelection(path);
@@ -50,12 +55,16 @@ namespace Quanter.Strategy
         {
             this.Desc = strategy;
         }
+
         public EStrategy Desc { get; private set; }
 
         public void Handle(StrategyRequest message)
         {
             switch(message.Type)
             {
+                case StrategyRequestType.INIT:
+                    _init();
+                    break;
                 case StrategyRequestType.START:
                     start();
                     break;
@@ -87,42 +96,40 @@ namespace Quanter.Strategy
             }
         }
 
-        protected override void PreStart()
-        {
-            init();
-            start();
-            base.PreStart();
-        }
-
         protected override void PostStop()
         {
             base.PostStop();
             stop();
         }
 
-        protected virtual void init()
+        protected void _init()
         {
-            //String path = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_PERSISTENCE);
-            //persistenceActor = Context.ActorSelection(path);
+            _log.Debug("加载{0}策略的仓位信息", Desc.Id);
+            String path = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_PERSISTENCE);
+            persistenceActor = Context.ActorSelection(path);
+            PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.FIND, Body=String.Format("from EStrategy where Id={0}", Desc.Id) };
+            var ret = persistenceActor.Ask<EStrategy>(req, TimeSpan.FromSeconds(1));
+            ret.Wait();
+            Desc = ret.Result;
 
-            String path = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_TRADER);
-            tradeActor = Context.ActorSelection(path);
+            _log.Debug("{0}策略连接交易接口", Desc.Id);
+            if (Desc.Trader != null) { 
+                String tpath = String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_TRADER, Desc.Trader.Id);
+                tradeActor = Context.ActorSelection(tpath);
+            } else
+            {
+                // 默认的trade actor is /user/trader/ths
+                tradeActor = Context.ActorSelection("/user/trader");
+            }
 
-            initSettings();
+            onInit();
 
         }
 
-        protected virtual void initRisk() {
+        protected virtual void onInit() {
             // 初始化使用哪些风控
-        }
-
-        protected virtual void initSettings() {
-            // 使用哪个交易接口
             // 使用的哪种类型的行情数据
             // 初始化配置参数
-        }
-
-        protected virtual void initSecurities() {
             // 关注哪些股票
         }
 
@@ -147,7 +154,14 @@ namespace Quanter.Strategy
         }
         protected virtual void onQuoteData(QuoteData data)
         {
-
+            // 当报价数据到来的时候，更新价格
+            foreach(var share in this.Desc.Holders)
+            {
+                if(share.Symbol == data.Symbol)
+                {
+                    share.LastPrice = data.CurrentPrice;
+                }
+            }
         }
 
         protected virtual void run(object data)
@@ -163,25 +177,25 @@ namespace Quanter.Strategy
 
         protected int getCurrentAmount(String symbol)
         {
-            //foreach (StockHolderInfo shi in this.account.Holders)
-            //{
-            //    if (shi.StockCode == StockUtil.GetShortCode(code))
-            //    {
-            //        return shi.CurrentAmount;
-            //    }
-            //}
+            foreach (var shi in this.Desc.Holders)
+            {
+                if (shi.Symbol  == symbol)
+                {
+                    return shi.CurrentAmount;
+                }
+            }
             return 0;
         }
 
         protected int getEnableAmount(String symbol)
         {
-            //foreach (StockHolderInfo shi in this.account.Holders)
-            //{
-            //    if (shi.StockCode == StockUtil.GetShortCode(code))
-            //    {
-            //        return shi.EnableAmount;
-            //    }
-            //}
+            foreach (var shi in this.Desc.Holders)
+            {
+                if (shi.Symbol == symbol)
+                {
+                    return shi.EnableAmount;
+                }
+            }
             return 0;
         }
 
@@ -189,7 +203,42 @@ namespace Quanter.Strategy
         {
             // 1、下单
             Order order = _createOrder(securities, price, amount, OrderType.BUY);
-            _notifyTrader(order);       
+            _notifyTrader(order);
+
+            // 2、修改持仓
+            bool updated = false;
+            // 修改可用数量
+            foreach (EStockHolder shi in this.Desc.Holders)
+            {
+                if (shi.Symbol == securities.Symbol)
+                {
+                    shi.IncomeAmount += amount;
+                    shi.CostPrice = 0;
+                    updated = true;
+
+                    PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.UPDATE, Body = shi };
+                    persistenceActor.Tell(req);
+                }
+            }
+
+            // 新开仓
+            if (!updated)
+            {
+                EStockHolder shi = new EStockHolder()
+                {
+                    Symbol = securities.Symbol,
+                    Code = _getCode(securities.Symbol),
+                    CostPrice = price,
+                    LastPrice = price,
+                    IncomeAmount = amount,
+                    EnableAmount = 0,
+                    Strategy = this.Desc,
+                    Name = securities.Name,
+                };
+                this.Desc.Holders.Add(shi);
+                PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.SAVE, Body = shi };
+                persistenceActor.Tell(req);
+            }
         }
 
         protected void cancelSecurities(int entrustNo)
@@ -202,6 +251,17 @@ namespace Quanter.Strategy
             // 下单
             Order order = _createOrder(securities, price, amount, OrderType.SELL);
             _notifyTrader(order);
+
+            // 修改可用数量
+            foreach (EStockHolder shi in this.Desc.Holders)
+            {
+                if (shi.Symbol == securities.Symbol)
+                {
+                    shi.EnableAmount -= amount;
+                    PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.UPDATE, Body = shi };
+                    persistenceActor.Tell(req);
+                }
+            }
         }
 
         private Order _createOrder(Securities sec, float price, int amount, OrderType type)
@@ -222,15 +282,15 @@ namespace Quanter.Strategy
         {
             _log.Debug("通知交易端下单 策略ID:{0}, 代码:{1}, 证券类别: {2}, 价格:{3}， 数量:{4}", Desc.Id, order.Symbol);
 
-            TradeRequest req = new TradeRequest();
+            //TradeRequest req = new TradeRequest();
 
-            req.OrderType = order.Type;
-            req.TradeInterface = TradeInterface.THS;
-            req.TradeType = TradeType.ALGO;
+            //req.OrderType = order.Type;
+            //req.TradeInterface = TradeInterface.THS;
+            //req.TradeType = TradeType.ALGO;
 
-            req.SecuritiesOrder = order;
+            //req.SecuritiesOrder = order;
 
-            tradeActor.Tell(req); // TODO: 改为ASK?
+            //tradeActor.Tell(req); // TODO: 改为ASK?
         }
 
         private void _updateAccountInfo ()
@@ -289,7 +349,7 @@ namespace Quanter.Strategy
             return stockCode;
         }
 
-        protected string _getShortCode(String code)
+        protected string _getCode(String code)
         {
             switch (code.Length)
             {
@@ -297,7 +357,7 @@ namespace Quanter.Strategy
                     return code;
                 case 8:
                     return code.Substring(2);
-                case 13:
+                case 11:
                     return code.Substring(0, 6);
                 default:
                     return code;

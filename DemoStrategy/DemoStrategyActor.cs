@@ -16,7 +16,7 @@ namespace Quanter.Strategy.Demo
             _log.Debug("创建编码为 {0} StrategyActor实例", strategy.Id);
         }
 
-        protected override void init()
+        protected override void onInit()
         {
             _log.Debug("初始化编号为{0}Strategy", Desc.Id);
             AddSecurities(new Securities(SecuritiesTypes.Stock, MarketType.XSHE, "000002"));

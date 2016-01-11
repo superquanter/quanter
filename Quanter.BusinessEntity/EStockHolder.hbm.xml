@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Quanter.BusinessEntity"
+                   namespace="Quanter.BusinessEntity">
+ 
+  <class name="EStockHolder" table="T_STOCK_HOLDER">
+    <id name="Id" column="ID">
+      <generator class="identity" />
+    </id>
+
+    <property name="Symbol" column="SYMBOL" type="String"/>
+    <property name="Code" column="CODE" type="String"/>
+    <property name="Name" column="NAME" type="String"/>
+    <property name="CostPrice" column="COST_PRICE" type="float"/>
+    <property name="IncomeAmount" column="INCOME_AMOUNT" type="int"/>
+    <property name="EnableAmount" column="ENABLE_AMOUNT" type="int"/>
+    <property name="LastPrice" column="LAST_PRICE" type="float"/>
+    
+    <many-to-one name="Strategy" column="ID_STRATEGY" not-null="true" class="Quanter.BusinessEntity.EStrategy" foreign-key="FK_STOCKHOLDER_Strategy" />
+
+  </class>
+ 
+</hibernate-mapping>

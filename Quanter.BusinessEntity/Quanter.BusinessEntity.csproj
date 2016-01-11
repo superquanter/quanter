@@ -48,23 +48,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EAccount.cs" />
     <Compile Include="ECube.cs" />
     <Compile Include="EStockHolder.cs" />
     <Compile Include="EStrategy.cs" />
+    <Compile Include="ETrader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="stock.db3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EntrustRecord.hbm.xml" />
+    <Content Include="EntrustRecord.hbm.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="ECube.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EStockHolder.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ETrader.hbm.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="hibernate.cfg.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="StockHolder.hbm.xml" />
     <Content Include="EStrategy.hbm.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SubTradingAccount.hbm.xml" />
     <Content Include="TransactionRecord.hbm.xml" />

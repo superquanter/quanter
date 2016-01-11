@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
-                   assembly="Stock.BusinessEntity"
-                   namespace="Stock.BusinessEntity">
+                   assembly="Quanter.BusinessEntity"
+                   namespace="Quanter.BusinessEntity">
  
-  <class name="EStrategy" table="T_ESTRATEGY">
+  <class name="EStrategy" table="T_STRATEGY">
     <id name="Id" column="ID">
       <generator class="identity" />
     </id>
@@ -13,6 +13,15 @@
     <property name="Type" column="TYPE" type="String"/>
     <property name="Enabled" column="ENABLED" type="Boolean"/>
     <property name="Date" column="DATE" type="DateTime"/>
+    
+    <property name="EnableBalance" column="ENABLE_BALANCE" type="float"/>
+    <property name="FrozenBalance" column="FROZEN_BALANCE" type="float"/>
+
+    <many-to-one name="Trader" column="ID_TRADER" not-null="false" class="Quanter.BusinessEntity.ETrader" foreign-key="FK_Strategy_Trader" />
+    <bag name="Holders" cascade="all"  inverse="true">
+      <key column="ID_STRATEGY" />
+      <one-to-many class="Quanter.BusinessEntity.EStockHolder" />
+    </bag>
   </class>
  
 </hibernate-mapping>

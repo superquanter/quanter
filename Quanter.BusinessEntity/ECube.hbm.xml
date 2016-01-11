@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Quanter.BusinessEntity"
+                   namespace="Quanter.BusinessEntity">
+ 
+  <class name="ECube" table="T_CUBE">
+    <id name="Id" column="ID">
+      <generator class="identity" />
+    </id>
+
+    <property name="Symbol" column="SYMBOL" type="String"/>
+    <property name="PreAdjustmentId" column="PRE_ADJUSTMENT_ID" type="long"/>
+
+    <many-to-one name="Strategy" column="ID_STRATEGY"  not-null="true" cascade ="all" class="Quanter.BusinessEntity.EStrategy" />
+
+  </class>
+ 
+</hibernate-mapping>

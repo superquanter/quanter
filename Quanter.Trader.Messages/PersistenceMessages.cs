@@ -8,6 +8,7 @@ namespace Quanter.Trader.Messages
 {
     public enum PersistenceType
     {
+        INIT_DATABASE,
         OPEN,
         CLOSE,
         SAVE,
@@ -15,7 +16,7 @@ namespace Quanter.Trader.Messages
         DELETE,
         LOAD,
         FIND,
-        LIST
+        LIST,
     }
     public class PersistenceRequest
     {

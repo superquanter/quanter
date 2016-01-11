@@ -14,6 +14,8 @@ namespace Quanter.Common
         public MarketType MarketType { get; private set; }
 
         public String Symbol { get; private set; }
+
+        public String Name { get; set; }
         public String Alias {
             get
             {

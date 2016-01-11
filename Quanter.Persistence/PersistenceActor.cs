@@ -24,6 +24,10 @@ namespace Quanter.Persistence
         private Configuration configuration = null;
         private ISession session = null;
 
+        public PersistenceActor()
+        {
+            _log.Debug("");
+        }
 
         protected override void OnReceive(object message)
         {
@@ -32,15 +36,28 @@ namespace Quanter.Persistence
             {
                 switch(pr.Type)
                 {
+                    case PersistenceType.INIT_DATABASE:
+                        _createTables();
+                        break;
                     case PersistenceType.OPEN:
                         _log.Debug("初始化，并打开Session");
-                        // _init();
-                        // _openSession();
+                        _init();
+                        _openSession();
                         break;
                     case PersistenceType.SAVE:
                         _save(pr.Body);
                         break;
                     case PersistenceType.LOAD:
+                        //_load((int)pr.Body);
+                        break;
+                    case PersistenceType.UPDATE:
+                        _update(pr.Body);
+                        break;
+                    case PersistenceType.LIST:
+                        _list((String)pr.Body);
+                        break;
+                    case PersistenceType.FIND:
+                        _find((String)pr.Body);
                         break;
                     case PersistenceType.CLOSE:
                         _log.Debug("关闭Session");
@@ -56,9 +73,9 @@ namespace Quanter.Persistence
             try {
                 Configuration _cfg = new Configuration().Configure();
                 SchemaExport export = new SchemaExport(_cfg);
-                export.SetOutputFile("./db/create_tables.sql");
+                //export.SetOutputFile("./db/create_tables.sql");
                 export.Drop(true, true);
-                export.Create(true, true);
+                export.Create(false, true);
             } catch (Exception e)
             {
                 _log.Error("创建数据库语句发生异常。 {0}", e.StackTrace);
@@ -84,18 +101,25 @@ namespace Quanter.Persistence
         private void _save(Object obj)
         {
             _log.Debug("保存对象 {0}", obj.GetType().ToString());
-            session.Save(obj);
+            try {
+                session.Save(obj);
+                Sender.Tell(obj);
+
+            } catch (Exception e)
+            {
+                _log.Error("保存发生异常 {0}", e.StackTrace);
+            }
         }
 
         private void _update(Object obj)
         {
             _log.Debug("更新对象 {0}", obj.GetType().ToString());
-            // session.Update(obj);
+            session.Update(obj);
         }
 
         private void _delete(Type theType, int id)
         {
-            Object obj = _load(theType, id);
+            Object obj = session.Load(theType, id); 
             _delete(obj);
         }
 
@@ -104,31 +128,43 @@ namespace Quanter.Persistence
             session.Delete(obj);
         }
 
-        private object _load(Type theType, int id)
+        private void _load(Type theType, int id)
         {
-            return session.Load(theType, id);
+            object ret = null;
+            ret = session.Load(theType, id);
+            Sender.Tell(ret);
         }
 
-        private Object _find(String where)
+        private void _find(String where)
         {
-            IList objs = session.CreateQuery(where).List();
-            if (objs == null || objs.Count == 0) return null;
+            _log.Info("{1}Find 数据{0}", where, this.ToString());
+            try
+            {
+                object ret = null;
+                IList objs = session.CreateQuery(where).List();
+                if (objs != null && objs.Count != 0) ret = objs[0];
 
-            return objs[0];
+                Sender.Tell(ret);
+            }catch (Exception e)
+            {
+                _log.Error("{1}发送异常{0}", e.StackTrace, this.ToString());
+            }
         }
 
-        private IList _list(string where)
+        private void _list(string where)
         {
+            IList ret = null;
             try
             {
                 IQuery q = session.CreateQuery(where);
-                return q.List();
+                ret = q.List();
             }
             catch (Exception e)
             {
-                // TODO: LOG
-                _log.Debug("发生异常 {0}", e.StackTrace);
-                return null;
+                _log.Error("发生异常 {0}", e.StackTrace);
+            } finally
+            {
+                Sender.Tell(ret);
             }
         }
 
@@ -143,6 +179,7 @@ namespace Quanter.Persistence
 
         private void _closeSession()
         {
+            _log.Info("关闭数据库链接");
             if (session != null)
             {
                 session.Close();

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="Quanter.BusinessEntity"
+                   namespace="Quanter.BusinessEntity">
+ 
+  <class name="ETrader" table="T_TRADER">
+    <id name="Id" column="ID">
+      <generator class="identity" />
+    </id>
+     
+    <property name="Username" column="NAME" type="String"/>
+    <property name="Password" column="DESC" type="String"/>
+    <property name="ServicePwd" column="TYPE" type="String"/>
+    <property name="Path" column="ENABLED" type="String"/>
+    <property name="Date" column="DATE" type="DateTime"/>
+  </class>
+ 
+</hibernate-mapping>
