@@ -30,44 +30,39 @@ namespace Quanter.Market.Sina
         }
 
         private List<string> t_ReqSymbols = new List<string>();
+        private readonly int n = 150;
 
         private void _run()
         {
             _log.Info("sina level1 行情接收器开始运行");
-            int n = 150;
             bool isSent = false;
-            while (true)
+            if (aliases.Count != 0)
             {
-                if (aliases.Count != 0)
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < aliases.Count; i++)
                 {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < aliases.Count; i++)
-                    {
-                        isSent = false;
-                        sb.Append(aliases[i]);
-                        sb.Append(",");
+                    isSent = false;
+                    sb.Append(aliases[i]);
+                    sb.Append(",");
 
-                        if (i % n == (n - 1))
-                        {
-                            sb.Remove(sb.Length - 1, 1);
-                            t_ReqSymbols.Add(sb.ToString());
-                            sb.Clear();
-                            isSent = true;
-                        }
-                    }
-                    if (!isSent)
+                    if (i % n == (n - 1))
                     {
                         sb.Remove(sb.Length - 1, 1);
                         t_ReqSymbols.Add(sb.ToString());
+                        sb.Clear();
+                        isSent = true;
                     }
                 }
-
-                foreach (string item in t_ReqSymbols)
+                if (!isSent)
                 {
-                    _sendRequest(item);
+                    sb.Remove(sb.Length - 1, 1);
+                    t_ReqSymbols.Add(sb.ToString());
                 }
+            }
 
-                Thread.Sleep(2500);
+            foreach (string item in t_ReqSymbols)
+            {
+                _sendRequest(item);
             }
         }
 
@@ -104,6 +99,7 @@ namespace Quanter.Market.Sina
             {
                 bid.Symbol = bid.Alias.Substring(2, 6) + ".XSHG";
             }
+
             bid.Name = items[0].Substring(21, items[0].Length - 21);    // var hq_str_sz150023="深成指B
             bid.Open = float.Parse(items[1]);
             bid.LastClose = float.Parse(items[2]);
