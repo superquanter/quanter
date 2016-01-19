@@ -11,7 +11,7 @@
     <property name="Symbol" column="SYMBOL" type="String"/>
     <property name="PreAdjustmentId" column="PRE_ADJUSTMENT_ID" type="long"/>
 
-    <many-to-one name="Strategy" column="ID_STRATEGY"  not-null="true" cascade ="all" class="Quanter.BusinessEntity.EStrategy" />
+    <many-to-one name="Strategy" column="ID_STRATEGY"  not-null="true" cascade ="all" class="Quanter.BusinessEntity.EStrategy" lazy="false" />
 
   </class>
  

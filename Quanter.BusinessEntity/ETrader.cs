@@ -10,11 +10,17 @@ namespace Quanter.BusinessEntity
     {
         public virtual int Id { get; set; }
 
+        public virtual String Name { get; set; }
+
+        public virtual String Desc { get; set; }
+
         public virtual String Username { get; set; }
         public virtual String Password { get; set; }
         public virtual String ServicePwd { get; set; }
 
         public virtual String Path { get; set; }
+
+        public virtual String Type { get; set; }
         public virtual DateTime Date { get; set; }
 
     }

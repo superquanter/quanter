@@ -18,7 +18,7 @@
     <property name="FrozenBalance" column="FROZEN_BALANCE" type="float"/>
 
     <many-to-one name="Trader" column="ID_TRADER" not-null="false" class="Quanter.BusinessEntity.ETrader" foreign-key="FK_Strategy_Trader" />
-    <bag name="Holders" cascade="all"  inverse="true">
+    <bag name="Holders" cascade="all"  inverse="true" lazy="false">
       <key column="ID_STRATEGY" />
       <one-to-many class="Quanter.BusinessEntity.EStockHolder" />
     </bag>

@@ -7,11 +7,13 @@
     <id name="Id" column="ID">
       <generator class="identity" />
     </id>
-     
-    <property name="Username" column="NAME" type="String"/>
-    <property name="Password" column="DESC" type="String"/>
-    <property name="ServicePwd" column="TYPE" type="String"/>
-    <property name="Path" column="ENABLED" type="String"/>
+
+    <property name="Name" column="NAME" type="String"/>
+    <property name="Desc" column="DESC" type="String"/>
+    <property name="Username" column="USERNAME" type="String"/>
+    <property name="Password" column="PASSWORD" type="String"/>
+    <property name="ServicePwd" column="SERVICEPWD" type="String"/>
+    <property name="Type" column="TYPE" type="String"/>
     <property name="Date" column="DATE" type="DateTime"/>
   </class>
  
