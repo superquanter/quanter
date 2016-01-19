@@ -24,22 +24,31 @@ namespace Quanter.Strategy
 
         protected void AddSecurities(Securities sec)
         {
-            secDict.Add(sec.Symbol, sec);
-
-            String path1 = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER);
-            var marketActor = Context.ActorSelection(path1);
-            // 增加一个关注的股票
-            marketActor.Tell("");
-
-            String path = String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER, sec.Symbol);
-            var secActor = Context.ActorSelection(path);
-            SecuritiesQuotationRequest req = new SecuritiesQuotationRequest()
+            if (!secDict.ContainsKey(sec.Symbol))
             {
-                Type = SecuritiesQuotationRequest.RequestType.WATCH_QUOTEDATA,
-                Body = Desc.Id
-            };
-            secActor.Tell(req);
-            symbolPriceActors.Add(sec.Symbol, secActor);
+                _log.Debug("订阅{0}股票价格", sec.Symbol);
+
+                secDict.Add(sec.Symbol, sec);
+
+                String path1 = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER);
+                var marketActor = Context.ActorSelection(path1);
+                // 增加一个关注的股票
+                MarketRequest request = new MarketRequest() { Type = MarketRequest.RequestType.ADD_SECURITIES, Body = sec };
+                marketActor.Tell(request);
+                //var ret = marketActor.Ask<Object>(request, TimeSpan.FromSeconds(2));
+                //ret.Wait();
+
+                // 
+                String path = String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER, sec.Symbol);
+                var secActor = Context.ActorSelection(path);
+                SecuritiesQuotationRequest req = new SecuritiesQuotationRequest()
+                {
+                    Type = SecuritiesQuotationRequest.RequestType.WATCH_QUOTEDATA,
+                    Body = Desc.Id
+                };
+                secActor.Tell(req);
+                symbolPriceActors.Add(sec.Symbol, secActor);
+            }
         }
 
         protected void RemoveSecurities(Securities sec)
@@ -119,7 +128,7 @@ namespace Quanter.Strategy
             } else
             {
                 // 默认的trade actor is /user/trader/ths
-                tradeActor = Context.ActorSelection("/user/trader");
+                // tradeActor = Context.ActorSelection("/user/trader");
             }
 
             onInit();
@@ -154,6 +163,7 @@ namespace Quanter.Strategy
         }
         protected virtual void onQuoteData(QuoteData data)
         {
+            _log.Debug("策略{0} 接收到股票 {1}价格", Desc.Id, data.Symbol);
             // 当报价数据到来的时候，更新价格
             foreach(var share in this.Desc.Holders)
             {
@@ -212,6 +222,7 @@ namespace Quanter.Strategy
             {
                 if (shi.Symbol == securities.Symbol)
                 {
+                    _log.Debug("更新仓位 {0}, {1}, {2}", securities.Symbol, price, amount);
                     shi.IncomeAmount += amount;
                     shi.CostPrice = 0;
                     updated = true;
@@ -224,6 +235,7 @@ namespace Quanter.Strategy
             // 新开仓
             if (!updated)
             {
+                _log.Debug("新开仓 {0}, {1}, {2}", securities.Symbol, price, amount);
                 EStockHolder shi = new EStockHolder()
                 {
                     Symbol = securities.Symbol,
@@ -282,15 +294,20 @@ namespace Quanter.Strategy
         {
             _log.Debug("通知交易端下单 策略ID:{0}, 代码:{1}, 证券类别: {2}, 价格:{3}， 数量:{4}", Desc.Id, order.Symbol);
 
-            //TradeRequest req = new TradeRequest();
+            TradeRequest req = new TradeRequest();
+            switch (order.Type)
+            {
+                case OrderType.BUY:
+                    req.Type = TradeRequest.RequestType.BUY;
+                    break;
+                case OrderType.SELL:
+                    req.Type = TradeRequest.RequestType.SELL;
+                    break;
+            }
 
-            //req.OrderType = order.Type;
-            //req.TradeInterface = TradeInterface.THS;
-            //req.TradeType = TradeType.ALGO;
+            req.SecuritiesOrder = order;
 
-            //req.SecuritiesOrder = order;
-
-            //tradeActor.Tell(req); // TODO: 改为ASK?
+            tradeActor.Tell(req); // XXX: 改为ASK?
         }
 
         private void _updateAccountInfo ()
