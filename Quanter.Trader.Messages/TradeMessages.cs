@@ -58,6 +58,15 @@ namespace Quanter.Trader.Messages
 
     public class TradeRequest
     {
+        public enum RequestType
+        {
+            INIT,
+            BUY,
+            SELL,
+        }
+
+        public RequestType Type { get; set; }
+
         public OrderType OrderType { get; set; }
 
         public TradeInterface TradeInterface { get; set; }
@@ -72,4 +81,16 @@ namespace Quanter.Trader.Messages
         public int EntrustNo { get; set; }
         public String Message { get; set; }
     }
+
+    public class TradeManagerRequest
+    {
+        public enum RequestType
+        {
+            INIT,
+        }
+
+        public RequestType Type { get; set; }
+        public Object Body { get; set; }
+    }
+
 }

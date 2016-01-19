@@ -23,13 +23,17 @@ namespace Quanter.Trader.Messages
     {
         public enum RequestType
         {
+            INIT,
             START,
             STOP,
+            ADD_SECURITIES,
             ADD_STRATEGY,
             REMOVE_STARTEGY,
         }
 
         public RequestType Type { get; set; }
+
+        public Object Body { get; set; }
     }
 
     public class StopMarketRequest

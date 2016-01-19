@@ -31,41 +31,49 @@ namespace Quanter.Persistence
 
         protected override void OnReceive(object message)
         {
-            PersistenceRequest pr = message as PersistenceRequest;
-            if(pr != null)
-            {
-                switch(pr.Type)
+            try {
+                PersistenceRequest pr = message as PersistenceRequest;
+                if (pr != null)
                 {
-                    case PersistenceType.INIT_DATABASE:
-                        _createTables();
-                        break;
-                    case PersistenceType.OPEN:
-                        _log.Debug("初始化，并打开Session");
-                        _init();
-                        _openSession();
-                        break;
-                    case PersistenceType.SAVE:
-                        _save(pr.Body);
-                        break;
-                    case PersistenceType.LOAD:
-                        //_load((int)pr.Body);
-                        break;
-                    case PersistenceType.UPDATE:
-                        _update(pr.Body);
-                        break;
-                    case PersistenceType.LIST:
-                        _list((String)pr.Body);
-                        break;
-                    case PersistenceType.FIND:
-                        _find((String)pr.Body);
-                        break;
-                    case PersistenceType.CLOSE:
-                        _log.Debug("关闭Session");
-                        // _closeSession();
-                        break;
-                    default:
-                        break;
+                    switch (pr.Type)
+                    {
+                        case PersistenceType.INIT_DATABASE:
+                            _createTables();
+                            break;
+                        case PersistenceType.OPEN:
+                            _log.Debug("初始化，并打开Session");
+                            _init();
+                            _openSession();
+                            break;
+                        case PersistenceType.SAVE:
+                            _save(pr.Body);
+                            break;
+                        case PersistenceType.LOAD:
+                            //_load((int)pr.Body);
+                            break;
+                        case PersistenceType.DELETE:
+                            _delete(pr.Body);
+                            break;
+                        case PersistenceType.UPDATE:
+                            _update(pr.Body);
+                            break;
+                        case PersistenceType.LIST:
+                            _list((String)pr.Body);
+                            break;
+                        case PersistenceType.FIND:
+                            _find((String)pr.Body);
+                            break;
+                        case PersistenceType.CLOSE:
+                            _log.Debug("关闭Session");
+                            // _closeSession();
+                            break;
+                        default:
+                            break;
+                    }
                 }
+            } catch (Exception e)
+            {
+                _log.Error("PersistenceActor.OnReceive 发生异常： {0}", e.StackTrace);
             }
         }
 
@@ -103,8 +111,8 @@ namespace Quanter.Persistence
             _log.Debug("保存对象 {0}", obj.GetType().ToString());
             try {
                 session.Save(obj);
+                session.Flush();
                 Sender.Tell(obj);
-
             } catch (Exception e)
             {
                 _log.Error("保存发生异常 {0}", e.StackTrace);
@@ -115,6 +123,8 @@ namespace Quanter.Persistence
         {
             _log.Debug("更新对象 {0}", obj.GetType().ToString());
             session.Update(obj);
+            session.Flush();
+            Sender.Tell(obj);
         }
 
         private void _delete(Type theType, int id)
@@ -126,6 +136,7 @@ namespace Quanter.Persistence
         private void _delete(Object obj)
         {
             session.Delete(obj);
+            session.Flush();
         }
 
         private void _load(Type theType, int id)
