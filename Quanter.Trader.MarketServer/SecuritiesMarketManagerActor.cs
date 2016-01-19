@@ -33,26 +33,38 @@ namespace Quanter.Market
 
         protected override void PreStart()
         {
-            _initStockMarket();
-            _initMarketReceiver();
-            _tellAskedSecurities();
             base.PreStart();
         }
         public void Handle(MarketRequest message)
         {
-            switch(message.Type)
-            {
-                case MarketRequest.RequestType.START:
-                    _startMarket();
-                    break;
-                case MarketRequest.RequestType.STOP:
-                    _log.Info("停止证券市场服务");
-                    _stopMarket();
-                    break;
-                default:
-                    _log.Info("不支持的请求类型 {0}", message.Type);
-                    break;
+            try { 
+                switch(message.Type)
+                {
+                    case MarketRequest.RequestType.INIT:
+                        _initStockMarket();
+                        _initMarketReceiver();
+                        // _tellAskedSecurities();
+                        break;
+                    case MarketRequest.RequestType.START:
+                        _startMarket();
+                        break;
+                    case MarketRequest.RequestType.ADD_SECURITIES:
+                        _addNewSecurities((Securities)message.Body);
+                        break;
+                    case MarketRequest.RequestType.STOP:
+                        _log.Info("停止证券市场服务");
+                        _stopMarket();
+                        break;
+                    default:
+                        _log.Info("不支持的请求类型 {0}", message.Type);
+                        break;
+                }
             }
+            catch (Exception e)
+            {
+                _log.Error("SecuritiesMarketManagerActor.Handle<MarketRequest>发生异常：{0}", e.StackTrace);
+            }
+
         }
 
         private void _startMarket()
@@ -76,6 +88,18 @@ namespace Quanter.Market
             quotationActor.GracefulStop(TimeSpan.FromSeconds(5));
         }
 
+        private void _addNewSecurities (Securities sec)
+        {
+            //if (!secActors.ContainsKey(sec.Symbol))
+            //{
+            //    _log.Debug("创建一个新关注的股票 {0}Actor", sec.Symbol);
+            //    var secActor = Context.ActorOf(Props.Create<SecuritiesQuotationActor>(sec), sec.Symbol);
+            //    secActors.Add(sec.Symbol, secActor);
+            //    //secs.Add(sec);
+
+                _tellAskedSecurities(sec);
+            //}
+        }
 
         /// <summary>
         /// 初始化证券报价列表
@@ -84,6 +108,7 @@ namespace Quanter.Market
         {
             _log.Info("初始化证券市场关注的证券列表");
             secActors.Clear();
+            secs.Clear();
 
             // 读取证券列表
             string filePath = "stock_list.csv";
@@ -148,6 +173,20 @@ namespace Quanter.Market
                 Body = secs
             };
             quotationActor.Tell(req);
+        }
+
+        private void _tellAskedSecurities(Securities sec)
+        {
+            List<Securities> t = new List<Securities>();
+            t.Add(sec);
+            QuotationRequest req = new QuotationRequest()
+            {
+                Type = QuotationRequest.RequestType.ASKED_SECURITIES,
+                Body = t
+            };
+
+            quotationActor.Tell(req);
+
         }
     }
 }

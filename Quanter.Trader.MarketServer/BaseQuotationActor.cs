@@ -22,14 +22,19 @@ namespace Quanter.Market
 
         public void Handle(QuotationRequest message)
         {
-            switch (message.Type)
+            try {
+                switch (message.Type)
+                {
+                    case QuotationRequest.RequestType.ASKED_SECURITIES:
+                        _handleAskedSecurities(message.Body as IList<Securities>);
+                        break;
+                    case QuotationRequest.RequestType.RUN:
+                        run();
+                        break;
+                }
+            }catch (Exception e)
             {
-                case QuotationRequest.RequestType.ASKED_SECURITIES:
-                    _handleAskedSecurities(message.Body as IList<Securities>);
-                    break;
-                case QuotationRequest.RequestType.RUN:
-                    run();
-                    break;
+                _log.Error("BaseQuotationActor.Handle<QuotationRequest>发生异常：{0}", e.StackTrace);
             }
         }
 
@@ -38,11 +43,14 @@ namespace Quanter.Market
             // 初始化证券Actor列表
             foreach (var sec in seces)
             {
-                _log.Debug("准备接收证券代码 {0}的行情数据", sec.Symbol);
-                var actor = Context.ActorSelection(String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER, sec.Symbol));
-                symbolActors.Add(sec.Symbol, actor);
+                if (!aliases.Contains(sec.Alias))
+                {
+                    _log.Debug("准备接收证券代码 {0}的行情数据", sec.Symbol);
+                    var actor = Context.ActorSelection(String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_MARKET_MANAGER, sec.Symbol));
+                    symbolActors.Add(sec.Symbol, actor);
 
-                aliases.Add(sec.Alias);      // 用于获取数据
+                    aliases.Add(sec.Alias);      // 用于获取数据
+                }
             }
         }
 
@@ -53,7 +61,7 @@ namespace Quanter.Market
 
         protected void newQuoteDataArrived(QuoteData data)
         {
-            _log.Debug("通知{0} 获取新数据到达", data.Alias);
+            _log.Debug("通知股票{0}Actor，有新Quote数据到达", data.Alias);
             symbolActors[data.Symbol].Tell(new SecuritiesQuotationRequest() { Type = SecuritiesQuotationRequest.RequestType.NEW_QUOTEDATA, Body = data });
         }
 
