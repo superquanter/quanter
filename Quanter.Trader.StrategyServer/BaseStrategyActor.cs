@@ -2,6 +2,7 @@
 using Akka.Event;
 using Quanter.BusinessEntity;
 using Quanter.Common;
+using Quanter.Market;
 using Quanter.Trader.Messages;
 using System;
 using System.Collections.Generic;
@@ -80,11 +81,21 @@ namespace Quanter.Strategy
                 case StrategyRequestType.STOP:
                     stop();
                     break;
+                case StrategyRequestType.BUY:
+                    buyOrder((Order)message.Body);
+                    break;
+                case StrategyRequestType.SELL:
+                    sellOrder((Order)message.Body);
+                    break;
+                case StrategyRequestType.SETTLEMENT:
+                    _settle();
+                    break;
                 default:
                     otherAction(message);
                     break;
             }
         }
+
 
         public void Handle(StrategyResponse message)
         {
@@ -135,6 +146,24 @@ namespace Quanter.Strategy
 
         }
 
+        private void _settle()
+        {
+            // 修改在途数量和可用数量
+            foreach(var holder in this.Desc.Holders)
+            {
+                holder.EnableAmount += holder.IncomeAmount;
+                holder.IncomeAmount = 0;
+                if(holder.EnableAmount == 0)
+                {
+                    persistenceActor.Tell(new PersistenceRequest() { Type = PersistenceType.DELETE, Body = holder });
+                } else
+                {
+                    persistenceActor.Tell(new PersistenceRequest() { Type = PersistenceType.UPDATE, Body = holder });
+                }
+            }
+        }
+
+
         protected virtual void onInit() {
             // 初始化使用哪些风控
             // 使用的哪种类型的行情数据
@@ -181,6 +210,16 @@ namespace Quanter.Strategy
 
         protected virtual void otherAction(StrategyRequest message)
         {
+        }
+
+        protected virtual void buyOrder(Order order)
+        {
+            this.buySecurities( new Securities(SecuritiesTypes.Stock, order.Symbol), order.Price, order.Amount);
+        }
+
+        protected virtual void sellOrder(Order order)
+        {
+            this.sellSecurities(new Securities(SecuritiesTypes.Stock, order.Symbol), order.Price, order.Amount);
         }
 
         #region 子账户的处理
@@ -245,12 +284,21 @@ namespace Quanter.Strategy
                     IncomeAmount = amount,
                     EnableAmount = 0,
                     Strategy = this.Desc,
-                    Name = securities.Name,
+                    Name = LastClosePriceDataHelper.Instance.LastClosePriceDatas[securities.Symbol].Name,
                 };
                 this.Desc.Holders.Add(shi);
                 PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.SAVE, Body = shi };
                 persistenceActor.Tell(req);
+
+                // 订阅这个股票价格
+                AddSecurities(securities);
             }
+
+            // 修改可用资金
+            float usedBanlance = price * amount;
+            Desc.EnableBalance -= usedBanlance;
+            PersistenceRequest req2 = new PersistenceRequest() { Type = PersistenceType.SAVE, Body = Desc };
+            persistenceActor.Tell(req2);
         }
 
         protected void cancelSecurities(int entrustNo)
@@ -274,6 +322,13 @@ namespace Quanter.Strategy
                     persistenceActor.Tell(req);
                 }
             }
+
+            // 修改可用资金
+            float usedBanlance = price * amount;
+            Desc.EnableBalance += usedBanlance;
+            PersistenceRequest req2 = new PersistenceRequest() { Type = PersistenceType.SAVE, Body = Desc };
+            persistenceActor.Tell(req2);
+
         }
 
         private Order _createOrder(Securities sec, float price, int amount, OrderType type)
