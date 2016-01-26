@@ -53,6 +53,10 @@
       <HintPath>..\packages\Akka.TestKit.Xunit2.1.0.5\lib\net45\Akka.TestKit.Xunit2.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\..\quanter.private\packages\CsvHelper.2.13.5.0\lib\net40-client\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Google.ProtocolBuffers, Version=2.4.1.521, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.dll</HintPath>
       <Private>True</Private>
@@ -125,6 +129,10 @@
     <ProjectReference Include="..\Quanter.Common\Quanter.Common.csproj">
       <Project>{a3fa3c71-a7b0-4bb6-bd32-0aee20493593}</Project>
       <Name>Quanter.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quanter.Market.Sina\Quanter.Market.Sina.csproj">
+      <Project>{ee7d7c04-1126-4c3f-8e24-a7a6008ed8a1}</Project>
+      <Name>Quanter.Market.Sina</Name>
     </ProjectReference>
     <ProjectReference Include="..\Quanter.Trader.Messages\Quanter.Trader.Messages.csproj">
       <Project>{dde08214-ec3a-4dd7-8cee-49973e17ae8f}</Project>

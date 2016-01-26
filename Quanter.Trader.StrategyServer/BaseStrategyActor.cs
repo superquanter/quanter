@@ -3,9 +3,11 @@ using Akka.Event;
 using Quanter.BusinessEntity;
 using Quanter.Common;
 using Quanter.Market;
+using Quanter.Strategy.Risk;
 using Quanter.Trader.Messages;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +24,7 @@ namespace Quanter.Strategy
         private Dictionary<String, Securities> secDict = new Dictionary<string, Securities>();
         private Dictionary<String, ActorSelection> symbolPriceActors = new Dictionary<string, ActorSelection>();
         private Dictionary<String, float> symbolPrices = new Dictionary<string, float>();
+        protected IList<IRiskRule> rules = new List<IRiskRule>();
 
         protected void AddSecurities(Securities sec)
         {
@@ -96,7 +99,6 @@ namespace Quanter.Strategy
             }
         }
 
-
         public void Handle(StrategyResponse message)
         {
             switch(message.Type)
@@ -166,6 +168,7 @@ namespace Quanter.Strategy
 
         protected virtual void onInit() {
             // 初始化使用哪些风控
+
             // 使用的哪种类型的行情数据
             // 初始化配置参数
             // 关注哪些股票
@@ -222,6 +225,23 @@ namespace Quanter.Strategy
             this.sellSecurities(new Securities(SecuritiesTypes.Stock, order.Symbol), order.Price, order.Amount);
         }
 
+        private void _processRisk(Order order)
+        {
+            RiskMessage msg = new RiskMessage() { Body = order, Type = RiskMessage.MessageType.ORDER };
+            foreach(var rule in rules)
+            {
+                if(!rule.ProcessMessage(msg))
+                {
+                    if(rule.Action == RiskActions.CancelOrder)
+                    {
+                        _log.Warning("{0} 风控管理， 取消订单", rule.Title);
+                        order.Amount = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
         #region 子账户的处理
 
         protected int getCurrentAmount(String symbol)
@@ -252,6 +272,11 @@ namespace Quanter.Strategy
         {
             // 1、下单
             Order order = _createOrder(securities, price, amount, OrderType.BUY);
+            _processRisk(order);
+            if(order.Amount == 0)
+            {
+                return;
+            }
             _notifyTrader(order);
 
             // 2、修改持仓

@@ -8,6 +8,8 @@ namespace Quanter.Strategy.Risk
 {
     public enum RiskActions
     {
-        CancelOrders,
+        CancelOrder,
     }
+
+
 }
