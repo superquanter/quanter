@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,13 +13,15 @@ namespace Quanter.Common
 {
     public class HttpClient : WebClient
     {
+        private static Logger _log = LogManager.GetCurrentClassLogger();
+
         public string Post(string url, string body)
         {
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
 
             httpWebRequest.ContentType = "application/x-www-form-urlencoded";
             httpWebRequest.Method = "POST";
-            httpWebRequest.Timeout = 20000;
+            httpWebRequest.Timeout = this.Timeout;
 
             byte[] btBodys = Encoding.UTF8.GetBytes(body);
             httpWebRequest.ContentLength = btBodys.Length;
@@ -51,7 +54,7 @@ namespace Quanter.Common
             httpWebRequest.Headers.Add("Accept-Charset", "utf8;q=0.8;");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "GET";
-            httpWebRequest.Timeout = 2000;
+            httpWebRequest.Timeout = this.Timeout;
             httpWebRequest.KeepAlive = true;
             httpWebRequest.CookieContainer = this.Cookies;
 
@@ -66,7 +69,8 @@ namespace Quanter.Common
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                _log.Error("获取 {0} 时，发生异常 {1}", address, e.StackTrace);
+                // Console.WriteLine(e.StackTrace);
             }
             finally
             {
