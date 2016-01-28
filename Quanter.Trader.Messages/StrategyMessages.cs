@@ -58,6 +58,9 @@ namespace Quanter.Trader.Messages
         START,
         STOP,
         INIT,
+        SETTLEMENT,
+        BUY,
+        SELL
     }
     public class StrategyRequest 
     {
