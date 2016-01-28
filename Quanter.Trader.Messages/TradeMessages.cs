@@ -63,6 +63,7 @@ namespace Quanter.Trader.Messages
             INIT,
             BUY,
             SELL,
+            KEEP,
         }
 
         public RequestType Type { get; set; }
