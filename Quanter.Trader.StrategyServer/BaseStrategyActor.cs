@@ -126,15 +126,21 @@ namespace Quanter.Strategy
 
         protected void _init()
         {
-            _log.Debug("加载{0}策略的仓位信息", Desc.Id);
-            String path = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_PERSISTENCE);
-            persistenceActor = Context.ActorSelection(path);
-            PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.FIND, Body=String.Format("from EStrategy where Id={0}", Desc.Id) };
-            var ret = persistenceActor.Ask<EStrategy>(req, TimeSpan.FromSeconds(1));
-            ret.Wait();
-            Desc = ret.Result;
+            _log.Info("加载{0}策略的仓位信息", Desc.Id);
+            try {
+                String path = String.Format("/user/{0}", ConstantsHelper.AKKA_PATH_PERSISTENCE);
+                persistenceActor = Context.ActorSelection(path);
+                PersistenceRequest req = new PersistenceRequest() { Type = PersistenceType.FIND, Body = String.Format("from EStrategy where Id={0}", Desc.Id) };
+                var ret = persistenceActor.Ask<EStrategy>(req, TimeSpan.FromSeconds(10));
+                ret.Wait();
+                Desc = ret.Result;
+            } catch(Exception e)
+            {
+                _log.Error("发生异常 {0}", e.StackTrace);
+                showLog(String.Format("必须重新启动，策略{0}加载超时", Desc.Id));
+            }
 
-            _log.Debug("{0}策略连接交易接口", Desc.Id);
+            _log.Info("{0}策略连接交易接口", Desc.Id);
             if (Desc.Trader != null) { 
                 String tpath = String.Format("/user/{0}/{1}", ConstantsHelper.AKKA_PATH_TRADER, Desc.Trader.Id);
                 tradeActor = Context.ActorSelection(tpath);
@@ -234,13 +240,20 @@ namespace Quanter.Strategy
                 {
                     if(rule.Action == RiskActions.CancelOrder)
                     {
-                        _log.Warning("{0} 风控管理， 取消订单", rule.Title);
+                        _log.Warning("风控{0}， 取消{1}订单", rule.Title, order.Symbol);
+                        showLog(String.Format("3,风控{0}， 取消{1}订单", rule.Title, order.Symbol));
                         order.Amount = 0;
                         break;
                     }
                 }
             }
         }
+
+        protected virtual void showLog(String message)
+        {
+
+        }
+
 
         #region 子账户的处理
 
