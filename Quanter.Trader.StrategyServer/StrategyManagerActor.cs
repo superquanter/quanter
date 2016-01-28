@@ -49,9 +49,9 @@ namespace Quanter.Strategy
 
         private void _createStrategyActor(EStrategy sd)
         {
-            _log.Info("创建策略 {0}", sd.Id);
             if (!strategyActors.ContainsKey(sd.Id))
             {
+                _log.Info("创建策略 {0}", sd.Id);
                 Type t = Type.GetType(sd.Type);
                 var strategyActor = Context.ActorOf(Props.Create(t, sd), sd.Id.ToString());
                 strategyActor.Tell(new StrategyRequest() { Type = StrategyRequestType.INIT });
